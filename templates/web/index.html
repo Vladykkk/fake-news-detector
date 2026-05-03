@@ -1,0 +1,83 @@
+{% extends "web/base.html" %}
+{% load score_tags %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <h2 class="mb-3">Аналіз тексту на ознаки ІПСО</h2>
+        <p class="text-muted">
+            Вставте текст повідомлення для перевірки на ознаки інформаційно-психологічних операцій.
+        </p>
+
+        <form id="analyze-form"
+              hx-post="{% url 'web-analyze' %}"
+              hx-target="#result-area"
+              hx-disabled-elt="#submit-btn"
+              hx-on::after-request="if(event.detail.successful) document.getElementById('text-input').value = ''">
+            {% csrf_token %}
+            <div class="mb-3">
+                <textarea id="text-input" name="text" class="form-control" rows="6"
+                          placeholder="Вставте текст для аналізу (мінімум 30 символів)..."
+                          minlength="30" required></textarea>
+            </div>
+            <button id="submit-btn" type="submit" class="btn btn-primary">
+                <span class="btn-text">Аналізувати</span>
+                <span class="btn-loading d-none">
+                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                    Аналізую...
+                </span>
+            </button>
+        </form>
+
+        <div id="result-area" class="mt-4"></div>
+
+        {% if recent_results %}
+        <hr class="mt-5">
+        <h4>Останні аналізи</h4>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Вердикт</th>
+                        <th>Бал</th>
+                        <th>Мова</th>
+                        <th>Час</th>
+                        <th>Дата</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in recent_results %}
+                    <tr onclick="window.location='{% url 'web-result-detail' r.pk %}'">
+                        <td>
+                            <span class="badge badge-{{ r.verdict }}">{{ r.get_verdict_display }}</span>
+                        </td>
+                        <td>{{ r.final_score|as_percent }}%</td>
+                        <td>{{ r.detected_language|upper }}</td>
+                        <td>{{ r.processing_time_ms }} мс</td>
+                        <td>{{ r.created_at|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('htmx:beforeRequest', function(e) {
+    if (e.detail.elt.id === 'analyze-form') {
+        var btn = document.getElementById('submit-btn');
+        btn.querySelector('.btn-text').classList.add('d-none');
+        btn.querySelector('.btn-loading').classList.remove('d-none');
+    }
+});
+document.addEventListener('htmx:afterRequest', function(e) {
+    if (e.detail.elt.id === 'analyze-form') {
+        var btn = document.getElementById('submit-btn');
+        btn.querySelector('.btn-text').classList.remove('d-none');
+        btn.querySelector('.btn-loading').classList.add('d-none');
+    }
+});
+</script>
+{% endblock %}

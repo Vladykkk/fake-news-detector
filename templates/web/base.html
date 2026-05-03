@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}IPSO Detector{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js"></script>
+    <style>
+        body { background-color: #f8f9fa; }
+        .verdict-safe { color: #198754; }
+        .verdict-suspicious { color: #fd7e14; }
+        .verdict-ipso { color: #dc3545; font-weight: bold; }
+        .badge-safe { background-color: #198754; }
+        .badge-suspicious { background-color: #fd7e14; }
+        .badge-ipso { background-color: #dc3545; }
+        .score-bar {
+            height: 8px; border-radius: 4px;
+            background: #e9ecef; overflow: hidden;
+        }
+        .score-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+        .score-bar-fill.low { background: #198754; }
+        .score-bar-fill.medium { background: #fd7e14; }
+        .score-bar-fill.high { background: #dc3545; }
+        .htmx-indicator { display: none; }
+        .htmx-request .htmx-indicator { display: inline-block; }
+        .htmx-request .submit-btn { display: none; }
+        .card { box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .navbar-brand { font-weight: 600; letter-spacing: 0.5px; }
+        textarea.form-control { resize: vertical; }
+        tr[onclick] { cursor: pointer; }
+        tr[onclick]:hover { background-color: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/">IPSO Detector</a>
+            <div class="d-flex">
+                <a href="{% url 'web-history' %}" class="btn btn-outline-light btn-sm me-2">Історія</a>
+                <a href="/api/" class="btn btn-outline-light btn-sm me-2">API</a>
+                <a href="/admin/" class="btn btn-outline-light btn-sm">Admin</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <footer class="text-center text-muted mt-5 mb-3">
+        <small>IPSO Detector &copy; 2026 — Рибак В.Я., НУ «Львівська політехніка», РІ-31сп</small>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

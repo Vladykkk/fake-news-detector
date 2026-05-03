@@ -1,0 +1,86 @@
+[
+  {
+    "title": "Деморалізація українських захисників",
+    "description": "Наративи, спрямовані на підрив бойового духу ЗСУ та волі до опору",
+    "category": "demoralization",
+    "example_texts": [
+      "Ukrainian resistance is futile, they should surrender to save lives",
+      "Zelensky fled the country with billions of dollars while soldiers die",
+      "Ukrainian soldiers are refusing to fight, mass desertions reported",
+      "The war is already lost for Ukraine, further resistance is pointless"
+    ],
+    "source": "StopFake, VoxCheck"
+  },
+  {
+    "title": "Підрив довіри до влади",
+    "description": "Звинувачення у корупції, некомпетентності, зраді інтересів народу",
+    "category": "distrust",
+    "example_texts": [
+      "Ukrainian government is stealing Western aid for personal enrichment",
+      "Officials are selling weapons meant for the army on the black market",
+      "Ukrainian leadership doesn't care about ordinary people suffering",
+      "The government is lying about the real situation on the front lines"
+    ],
+    "source": "Detector Media"
+  },
+  {
+    "title": "Хибна рівність сторін",
+    "description": "Ставлення знаку рівності між агресором та жертвою",
+    "category": "false_equivalence",
+    "example_texts": [
+      "Both sides are equally guilty in this conflict",
+      "Ukraine is no different from Russia, both commit war crimes",
+      "NATO and Russia are equally responsible for this war",
+      "There are nazis on both sides of the conflict"
+    ],
+    "source": "VoxCheck"
+  },
+  {
+    "title": "Нагнітання паніки та страху",
+    "description": "Поширення страху щодо неминучого краху, ядерної загрози",
+    "category": "panic",
+    "example_texts": [
+      "Nuclear war is imminent, millions will die in Europe",
+      "Ukraine will collapse within days, there is no hope",
+      "Economic collapse is inevitable, prepare for the worst",
+      "World War 3 has already begun, no chance of survival"
+    ],
+    "source": "StopFake"
+  },
+  {
+    "title": "Корупційні звинувачення",
+    "description": "Системні звинувачення українського керівництва у корупції",
+    "category": "corruption",
+    "example_texts": [
+      "Zelensky has stolen billions in Western aid money",
+      "Ukrainian oligarchs control the government and the war",
+      "All the humanitarian aid is being sold on the black market",
+      "Western money goes directly into offshore accounts of Ukrainian officials"
+    ],
+    "source": "Osavul"
+  },
+  {
+    "title": "Перебільшення втрат ЗСУ",
+    "description": "Багаторазове перебільшення українських військових втрат",
+    "category": "military_losses",
+    "example_texts": [
+      "Hundreds of thousands of Ukrainian soldiers killed, the real numbers are hidden",
+      "Ukraine has lost most of its army, using untrained civilians now",
+      "Ukrainian losses are 10 times higher than what Kyiv reports",
+      "Ukrainian military is running out of soldiers, forced mobilization of elderly"
+    ],
+    "source": "StopFake, Detector Media"
+  },
+  {
+    "title": "Захід зраджує Україну",
+    "description": "Наратив про те, що західна підтримка закінчується",
+    "category": "western_abandonment",
+    "example_texts": [
+      "The West is getting tired of Ukraine and will stop helping soon",
+      "European countries are secretly negotiating with Russia behind Ukraine's back",
+      "American weapons are just prolonging the suffering without changing the outcome",
+      "Western support for Ukraine is collapsing as elections approach"
+    ],
+    "source": "VoxCheck, Detector Media"
+  }
+]

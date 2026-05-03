@@ -1,0 +1,53 @@
+{% extends "web/base.html" %}
+{% load score_tags %}
+
+{% block title %}Результат #{{ result.pk }} — IPSO Detector{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <a href="/" class="btn btn-outline-secondary btn-sm mb-3">&larr; На головну</a>
+        <a href="{% url 'web-history' %}" class="btn btn-outline-secondary btn-sm mb-3">Історія</a>
+
+        {% include "web/partials/result.html" %}
+
+        <div class="card mt-3">
+            <div class="card-header">Вхідний текст</div>
+            <div class="card-body">
+                <p class="mb-0">{{ result.original_text }}</p>
+            </div>
+        </div>
+
+        {% if result.translated_text and result.translated_text != result.original_text %}
+        <div class="card mt-3">
+            <div class="card-header">Переклад (EN)</div>
+            <div class="card-body">
+                <p class="mb-0">{{ result.translated_text }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="card mt-3">
+            <div class="card-header">Деталі аналізу</div>
+            <div class="card-body">
+                <table class="table table-sm mb-0">
+                    <tr><th>ID</th><td>{{ result.pk }}</td></tr>
+                    <tr><th>Джерело</th><td>{{ result.source }}</td></tr>
+                    <tr><th>Мова</th><td>{{ result.detected_language|upper }}</td></tr>
+                    <tr>
+                        <th>Формула</th>
+                        <td>
+                            S = 0.40 &times; {{ result.narrative_score|as_percent }}%
+                            + 0.30 &times; {{ result.rhetoric_score|as_percent }}%
+                            + 0.30 &times; {{ result.similarity_score|as_percent }}%
+                            = <strong>{{ result.final_score|as_percent }}%</strong>
+                        </td>
+                    </tr>
+                    <tr><th>Час обробки</th><td>{{ result.processing_time_ms }} мс</td></tr>
+                    <tr><th>Створено</th><td>{{ result.created_at|date:"d.m.Y H:i:s" }}</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

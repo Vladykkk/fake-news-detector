@@ -1,0 +1,80 @@
+{% extends "web/base.html" %}
+{% load score_tags %}
+
+{% block title %}Історія — IPSO Detector{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="mb-0">Історія аналізів</h2>
+            <a href="/" class="btn btn-primary btn-sm">+ Новий аналіз</a>
+        </div>
+
+        {% if results %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Вердикт</th>
+                        <th>Бал</th>
+                        <th>Наративи</th>
+                        <th>Риторика</th>
+                        <th>Подібність</th>
+                        <th>Джерело</th>
+                        <th>Мова</th>
+                        <th>Час</th>
+                        <th>Дата</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in results %}
+                    <tr onclick="window.location='{% url 'web-result-detail' r.pk %}'">
+                        <td>{{ r.pk }}</td>
+                        <td>
+                            <span class="badge badge-{{ r.verdict }}">{{ r.get_verdict_display }}</span>
+                        </td>
+                        <td><strong>{{ r.final_score|as_percent }}%</strong></td>
+                        <td>{{ r.narrative_score|as_percent }}%</td>
+                        <td>{{ r.rhetoric_score|as_percent }}%</td>
+                        <td>{{ r.similarity_score|as_percent }}%</td>
+                        <td>{{ r.source }}</td>
+                        <td>{{ r.detected_language|upper }}</td>
+                        <td>{{ r.processing_time_ms }} мс</td>
+                        <td>{{ r.created_at|date:"d.m.Y H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if is_paginated %}
+        <nav aria-label="Pagination">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Попередня</a>
+                </li>
+                {% endif %}
+                <li class="page-item disabled">
+                    <span class="page-link">Сторінка {{ page_obj.number }} з {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Наступна</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <p class="fs-5">Поки що немає результатів аналізу.</p>
+            <a href="/" class="btn btn-primary">Почати аналіз</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

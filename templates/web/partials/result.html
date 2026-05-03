@@ -1,0 +1,84 @@
+{% load score_tags %}
+
+<div class="card border-{% if result.verdict == 'ipso' %}danger{% elif result.verdict == 'suspicious' %}warning{% else %}success{% endif %}">
+    <div class="card-header d-flex align-items-center justify-content-between
+                {% if result.verdict == 'ipso' %}bg-danger text-white{% elif result.verdict == 'suspicious' %}bg-warning{% else %}bg-success text-white{% endif %}">
+        <h5 class="mb-0">
+            {% if result.verdict == 'ipso' %}ІПСО виявлено{% elif result.verdict == 'suspicious' %}Підозрілий контент{% else %}Безпечний контент{% endif %}
+        </h5>
+        <span class="fs-4 fw-bold">{{ result.final_score|as_percent }}%</span>
+    </div>
+    <div class="card-body">
+        <!-- Score breakdown -->
+        <div class="row mb-3">
+            <div class="col-4">
+                <small class="text-muted d-block">Наративи</small>
+                <div class="fw-bold">{{ result.narrative_score|as_percent }}%</div>
+                <div class="score-bar mt-1">
+                    <div class="score-bar-fill {% if result.narrative_score >= 0.7 %}high{% elif result.narrative_score >= 0.35 %}medium{% else %}low{% endif %}"
+                         style="width: {{ result.narrative_score|as_percent }}%"></div>
+                </div>
+            </div>
+            <div class="col-4">
+                <small class="text-muted d-block">Риторика</small>
+                <div class="fw-bold">{{ result.rhetoric_score|as_percent }}%</div>
+                <div class="score-bar mt-1">
+                    <div class="score-bar-fill {% if result.rhetoric_score >= 0.7 %}high{% elif result.rhetoric_score >= 0.35 %}medium{% else %}low{% endif %}"
+                         style="width: {{ result.rhetoric_score|as_percent }}%"></div>
+                </div>
+            </div>
+            <div class="col-4">
+                <small class="text-muted d-block">Подібність</small>
+                <div class="fw-bold">{{ result.similarity_score|as_percent }}%</div>
+                <div class="score-bar mt-1">
+                    <div class="score-bar-fill {% if result.similarity_score >= 0.7 %}high{% elif result.similarity_score >= 0.35 %}medium{% else %}low{% endif %}"
+                         style="width: {{ result.similarity_score|as_percent }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        {% if result.detected_narratives %}
+        <h6>Виявлені наративи:</h6>
+        <ul class="list-unstyled">
+            {% for n in result.detected_narratives %}
+            <li class="mb-1">
+                <span class="badge bg-secondary">{{ n.label }}</span>
+                <small class="text-muted">впевненість: {{ n.confidence|as_percent }}%</small>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if result.detected_rhetoric %}
+        <h6>Маніпулятивні техніки:</h6>
+        <ul class="list-unstyled">
+            {% for r in result.detected_rhetoric %}
+            <li class="mb-1">
+                <span class="badge bg-warning text-dark">{{ r.type }}</span>
+                <small class="text-muted">"{{ r.snippet }}"</small>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% if result.similar_narratives %}
+        <h6>Схожі відомі наративи:</h6>
+        <ul class="list-unstyled">
+            {% for s in result.similar_narratives %}
+            <li class="mb-1">
+                <span class="badge bg-info text-dark">{{ s.title }}</span>
+                <small class="text-muted">подібність: {{ s.similarity|as_percent }}%</small>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <div class="mt-3 pt-2 border-top">
+            <small class="text-muted">
+                Мова: {{ result.detected_language|upper }} |
+                Час обробки: {{ result.processing_time_ms }} мс |
+                <a href="{% url 'web-result-detail' result.pk %}">Детальніше &rarr;</a>
+            </small>
+        </div>
+    </div>
+</div>

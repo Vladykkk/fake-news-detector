@@ -1,124 +1,166 @@
-# IPSO Detector
+# 🛡️ IPSO Detector
 
-Розподілена інформаційна система для виявлення російських інформаційно-психологічних
-операцій (ІПСО) у відкритих текстових повідомленнях з використанням штучного інтелекту.
+A distributed information system for detecting Russian information-psychological operations (IPSO) in open-source text messages using artificial intelligence. The system combines LLM-based narrative classification, rule-based rhetorical marker analysis, and semantic similarity to a database of known narratives into a single ensemble score.
 
-Дипломна робота бакалавра — Рибак Владислав Ярославович, НУ «Львівська політехніка», група РІ-31сп, 2026.
+Bachelor's thesis — Rybak Vladyslav Yaroslavovych, Lviv Polytechnic National University, group RI-31sp, 2026.
 
-## Архітектура
+## ✨ Technologies
 
-Система складається з трьох модулів аналізу, об'єднаних в ансамблеву оцінку:
+- `Python 3.12`
+- `Django 4.2 LTS` + `Django REST Framework`
+- `Celery 5` + `Redis`
+- `PostgreSQL 16`
+- `sentence-transformers` (`paraphrase-multilingual-MiniLM-L12-v2`)
+- `OpenRouter API` (LLM) + `DeepL API` (translation)
+- `python-telegram-bot`
+- `HTMX` + `Bootstrap 5`
+- `Docker` + `Docker Compose`
+- `Gunicorn`
 
-| Модуль       | Метод                                            | Вага |
-|--------------|--------------------------------------------------|------|
-| Наративи     | LLM (OpenRouter API) — zero-shot класифікація    | 0.40 |
-| Риторика     | Rule-based regex patterns (UK + EN)              | 0.30 |
-| Подібність   | sentence-transformers + cosine similarity        | 0.30 |
+## 🚀 Features
 
-Фінальна оцінка: `S = 0.40 × narrative + 0.30 × rhetoric + 0.30 × similarity`
+- Ensemble IPSO score from three independent modules (narratives, rhetoric, similarity)
+- REST API with pagination, feedback, and statistics endpoints
+- Telegram bot for analyzing messages directly in the messenger
+- HTMX-powered web dashboard — no SPA framework required
+- Asynchronous task processing via Celery + Redis
+- Fully containerized — single-command launch via Docker Compose
 
-Пороги вердикту:
-- `safe` — S < 0.35 (безпечний)
-- `suspicious` — 0.35 ≤ S < 0.70 (підозрілий)
-- `ipso` — S ≥ 0.70 (ІПСО виявлено)
+## 📍 Architecture
 
-## Технології
+The system consists of three analysis modules combined into an ensemble score:
 
-- **Python 3.10+**
-- **Django 4.2 LTS** + **Django REST Framework** (ViewSets, class-based views)
-- **Celery 5** + **Redis** — асинхронна обробка задач
-- **PostgreSQL** (prod) / **SQLite** (dev)
-- **sentence-transformers** (`paraphrase-multilingual-MiniLM-L12-v2`)
-- **OpenRouter API** — для LLM-класифікації наративів
-- **python-telegram-bot** — інтеграція з Telegram Bot API
-- **HTMX + Bootstrap 5** — веб-інтерфейс без SPA-фреймворку
+| Module     | Method                                          | Weight |
+| ---------- | ----------------------------------------------- | ------ |
+| Narratives | LLM (OpenRouter API) — zero-shot classification | 0.40   |
+| Rhetoric   | Rule-based regex patterns (UK + EN)             | 0.30   |
+| Similarity | sentence-transformers + cosine similarity       | 0.30   |
 
-## Структура проєкту
+Final score: `S = 0.40 × narrative + 0.30 × rhetoric + 0.30 × similarity`
+
+Verdict thresholds:
+
+- `safe` — S < 0.35
+- `suspicious` — 0.35 ≤ S < 0.70
+- `ipso` — S ≥ 0.70 (IPSO detected)
+
+## 📂 Project Structure
 
 ```
-ipso-detector-api/
+fake-news-detector/
 ├── config/              # Django settings (base/dev/prod), URLs, Celery
 ├── apps/
-│   ├── core/            # Моделі БД: AnalysisResult, KnownNarrative, Feedback
-│   ├── analyzer/        # Аналітичний pipeline (translator, rhetoric, narrative, similarity)
+│   ├── core/            # DB models: AnalysisResult, KnownNarrative, Feedback
+│   ├── analyzer/        # Analysis pipeline (translator, rhetoric, narrative, similarity)
 │   ├── api/             # REST API — ViewSets, serializers
-│   ├── bot/             # Telegram webhook handlers
-│   └── web/             # HTMX dashboard з class-based views
-├── templates/web/       # Django-шаблони
-├── data/narratives/     # JSON seed для відомих наративів
-├── requirements/        # base.txt, dev.txt, prod.txt
+│   ├── bot/             # Telegram handlers (polling / webhook)
+│   └── web/             # HTMX dashboard with class-based views
+├── templates/web/       # Django templates
+├── data/narratives/     # JSON seed for known narratives
+├── scripts/             # Helper scripts (test_pipeline.sh)
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
 └── manage.py
 ```
 
-## Запуск проєкту
+## 🚦 Running with Docker (recommended)
 
-1. **Клонувати репозиторій**
+1. **Clone the repository**
+
    ```bash
    git clone <repo-url>
-   cd ipso-detector-api
+   cd fake-news-detector
    ```
 
-2. **Створити virtualenv та встановити залежності**
+2. **Create `.env`** (copy from `.env.example` and fill in the keys)
+
    ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -r requirements/dev.txt
+   cp .env.example .env
    ```
 
-3. **Налаштувати `.env`** (скопіювати з `.env.example`)
-   ```env
-   DEBUG=True
-   SECRET_KEY=your-secret-key
-   OPENROUTER_API_KEY=your-openrouter-key
-   TELEGRAM_BOT_TOKEN=your-telegram-token
-   TELEGRAM_WEBHOOK_SECRET=your-webhook-secret
-   USE_CELERY=False
-   ```
+   Fill in `OPENROUTER_API_KEY`, `DEEPL_API_KEY`, `TELEGRAM_BOT_TOKEN`, `SECRET_KEY`, `DB_PASSWORD`.
 
-4. **Застосувати міграції та заповнити базу відомих наративів**
+3. **Bring up all services**
+
    ```bash
-   python manage.py migrate
-   python manage.py seed_narratives
+   docker compose up --build
    ```
 
-5. **Запустити сервер розробки**
-   ```bash
-   python manage.py runserver 0.0.0.0:8000
-   ```
+   Compose automatically starts PostgreSQL, Redis, the web server (gunicorn), and the Telegram bot. Migrations and seeding of known narratives run on first startup.
 
-6. **Відкрити інтерфейси**
-   - Веб-дашборд: <http://localhost:8000/>
+4. **Open the interfaces**
+   - Web dashboard: <http://localhost:8000/>
    - REST API: <http://localhost:8000/api/>
    - Django Admin: <http://localhost:8000/admin/>
 
-## REST API
+5. **Create a superuser** (optional)
+   ```bash
+   docker compose exec web python manage.py createsuperuser
+   ```
 
-| Метод | Endpoint                   | Опис                                    |
-|-------|----------------------------|------------------------------------------|
-| POST  | `/api/analysis/`           | Створити новий аналіз                    |
-| GET   | `/api/analysis/`           | Список усіх аналізів (з пагінацією)      |
-| GET   | `/api/analysis/{id}/`      | Отримати конкретний результат            |
-| GET   | `/api/analysis/stats/`     | Агрегована статистика                    |
-| POST  | `/api/feedback/`           | Надіслати фідбек на результат            |
-| GET   | `/api/narratives/`         | Список відомих ІПСО-наративів            |
-| POST  | `/bot/webhook/`            | Telegram webhook endpoint                |
+## 🛠️ Running Locally (without Docker)
 
-Приклад запиту:
+1. **Create virtualenv and install dependencies**
+
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   pip3 install -r requirements.txt
+   ```
+
+2. **Start PostgreSQL and Redis** (e.g. via `docker compose up db redis`)
+
+3. **Configure `.env`** (see above) — set `DB_HOST=localhost`
+
+4. **Apply migrations and seed the database**
+
+   ```bash
+   python3 manage.py migrate
+   python3 manage.py seed_narratives --compute-embeddings
+   ```
+
+5. **Run the development server**
+
+   ```bash
+   python3 manage.py runserver 0.0.0.0:8000
+   ```
+
+6. **Run the Telegram bot** (in a separate terminal)
+   ```bash
+   python3 manage.py run_bot
+   ```
+
+## 🔌 REST API
+
+| Method | Endpoint               | Description                   |
+| ------ | ---------------------- | ----------------------------- |
+| POST   | `/api/analysis/`       | Create a new analysis         |
+| GET    | `/api/analysis/`       | List all analyses (paginated) |
+| GET    | `/api/analysis/{id}/`  | Retrieve a specific result    |
+| GET    | `/api/analysis/stats/` | Aggregated statistics         |
+| POST   | `/api/feedback/`       | Submit feedback on a result   |
+| GET    | `/api/narratives/`     | List known IPSO narratives    |
+| POST   | `/bot/webhook/`        | Telegram webhook endpoint     |
+
+Example request:
 
 ```bash
 curl -X POST http://localhost:8000/api/analysis/ \
   -H "Content-Type: application/json" \
-  -d '{"text": "Текст для аналізу...", "source": "api"}'
+  -d '{"text": "Text to analyze...", "source": "api"}'
 ```
 
-## Тести
+## 🧪 Tests
 
 ```bash
-python manage.py test
+# Locally
+python3 manage.py test
+
+# Inside the container
+docker compose exec web python manage.py test
 ```
 
-Поточне покриття: 37 тестів (core, analyzer, api, web).
+## 📜 License
 
-## Ліцензія
-
-Академічний проєкт — використання з посиланням на автора.
+Academic project — use with attribution to the author.
